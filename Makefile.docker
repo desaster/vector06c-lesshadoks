@@ -6,7 +6,13 @@ DOCKERPARAMS = -it --rm -v "$(PWD)":${BASEDIR} --userns=keep-id --user=$(id -ur)
 DOCKERCMD = docker run ${DOCKERPARAMS}
 TTYDEV ?= /dev/ttyUSB0
 
-.PHONY: help build esp8266 all
+all:
+	@${DOCKERCMD} ${IMAGEFULLNAME} make all
+
+clean:
+	@${DOCKERCMD} ${IMAGEFULLNAME} make clean
+
+.PHONY: help image 6502 6502_clean fpga fpga_clean esp8266 esp8266_flash esp8266_clean all clean
 
 help:
 	@echo "Makefile arguments:"
@@ -48,9 +54,3 @@ fpga: 6502
 
 fpga_clean:
 	@${DOCKERCMD} ${IMAGEFULLNAME} make fpga_clean
-
-all:
-	@${DOCKERCMD} ${IMAGEFULLNAME} make
-
-clean:
-	@${DOCKERCMD} ${IMAGEFULLNAME} make clean

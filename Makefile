@@ -1,5 +1,7 @@
 TTYDEV ?= /dev/ttyUSB0
 
+.PHONY: all 6502 6502_clean fpga fpga_clean esp8266 esp8266_flash esp8266_clean
+
 6502:
 	$(MAKE) -C 6502
 
@@ -25,5 +27,3 @@ esp8266_clean:
 
 all: 6502 fpga esp8266
 clean: 6502_clean fpga_clean esp8266_clean
-
-.PHONY: all 6502 fpga esp8266
