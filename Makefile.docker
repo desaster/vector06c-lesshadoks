@@ -1,0 +1,56 @@
+IMAGENAME = shadok-builder
+REPO = localhost
+IMAGEFULLNAME = ${REPO}/${IMAGENAME}:latest
+BASEDIR = /home/build
+DOCKERPARAMS = -it --rm -v "$(PWD)":${BASEDIR} --userns=keep-id --user=$(id -ur):$(id -gr)
+DOCKERCMD = docker run ${DOCKERPARAMS}
+TTYDEV ?= /dev/ttyUSB0
+
+.PHONY: help build esp8266 all
+
+help:
+	@echo "Makefile arguments:"
+	@echo "  (none)"
+	@echo ""
+	@echo "Makefile commands:"
+	@echo "  image           Build docker image (needed for the rest)"
+	@echo "  clean           Clean all targets"
+	@echo "  all             Build all targets"
+	@echo "  esp8266         Build esp8266 firmware"
+	@echo "  esp8266_clean   Clean esp8266 firmware"
+	@echo "  fpga            Build fpga firmware"
+	@echo "  fpga_clean      Clean fpga firmware"
+	@echo "  6502            Build 6502 firmware"
+	@echo "  6502_clean      Build 6502 firmware"
+
+.DEFAULT_GOAL := all
+
+image:
+	@docker build -f Dockerfile.builder -t "${IMAGEFULLNAME}" .
+
+6502:
+	@${DOCKERCMD} ${IMAGEFULLNAME} make 6502
+
+6502_clean:
+	@${DOCKERCMD} ${IMAGEFULLNAME} make 6502_clean
+
+esp8266:
+	@${DOCKERCMD} ${IMAGEFULLNAME} make esp8266
+
+esp8266_flash:
+	@${DOCKERCMD} --device ${TTYDEV} ${IMAGEFULLNAME} make esp8266_flash TTYDEV=${TTYDEV}
+
+esp8266_clean:
+	@${DOCKERCMD} ${IMAGEFULLNAME} make esp8266_clean
+
+fpga: 6502
+	@${DOCKERCMD} ${IMAGEFULLNAME} make fpga
+
+fpga_clean:
+	@${DOCKERCMD} ${IMAGEFULLNAME} make fpga_clean
+
+all:
+	@${DOCKERCMD} ${IMAGEFULLNAME} make
+
+clean:
+	@${DOCKERCMD} ${IMAGEFULLNAME} make clean
